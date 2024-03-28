@@ -7,12 +7,12 @@ c.       Tax rate is assumed constant at 25%.
 
 d.      High growth period (years) and fade period (years) may vary as per user input.
 
-                                                               i.      Example in excel sheet uses fixed high growth period of 15 years and fade period of 15 years.
+        i.      Example in excel sheet uses fixed high growth period of 15 years and fade period of 15 years.
 
-                                                             ii.      During the fade period, the growth falls linearly to terminal growth rate.
+        ii.      During the fade period, the growth falls linearly to terminal growth rate.
 
 e.      Lower of current PE and FY23PE is used to calculate degree of overvaluation.
 
-                                                               i.      e.g. if current PE < FY23PE, degree of overvaluation = (current PE/calculated intrinsic PE) – 1,
+        i.      e.g. if current PE < FY23PE, degree of overvaluation = (current PE/calculated intrinsic PE) – 1,
 
-                                                             ii.      else degree of overvaluation = (FY23 PE/calculated intrinsic PE) - 1
+        ii.      else degree of overvaluation = (FY23 PE/calculated intrinsic PE) - 1
