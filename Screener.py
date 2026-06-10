@@ -107,7 +107,8 @@ def scraper(token):
           s.text.replace('', '0%')
       else:
           ROCE.append(int(s.text.replace('%','')))
-  del ROCE[-1]
+  if ROCE:
+    del ROCE[-1]
 
   if len(ROCE)<5:
       ROCE = ROCE[-1]
