@@ -69,14 +69,14 @@ def scraper(token):
 
   
 
-  #Find FY23 PE
+  #Find FY25 PE
   pe_ratio_element = soup.find("li", class_="flex flex-space-between", attrs={"data-source": "default"})
 
   mcap = pe_ratio_element.find("span", class_="number")
   #print(mcap)
   mcap = float(mcap.text.replace(',',''))
-  fy23_net_profit = soup.find_all('tr', class_="strong")
-  Np = fy23_net_profit[5]
+  fy25_net_profit = soup.find_all('tr', class_="strong")
+  Np = fy25_net_profit[5]
 
   #print(len(Np))
   #Np = float(Np.find_all('td', class_='')[11].text.replace(',',''))
@@ -84,8 +84,8 @@ def scraper(token):
   Np = float(Np[len(Np) - 2].text.replace(',',''))
 
   #print("Np length:",len(Np))
-  fy23_PE = round(mcap/Np,2)
-  #fy23_P_E
+  fy25_PE = round(mcap/Np,2)
+  #fy25_P_E
 
   anchors = soup.find_all('a')
   stocks = soup.find_all('li', class_="flex flex-space-between")
@@ -101,24 +101,35 @@ def scraper(token):
       
   
   soc = soup.find_all('tr', class_='')
-  ROCE = []
-  for s in soc[38].find_all('td', class_= ''):
-      if s.text == '':
-          s.text.replace('', '0%')
-      else:
-          ROCE.append(int(s.text.replace('%','')))
-  if ROCE:
-      del ROCE[-1]
+  roce_row = None
+  for row in soc:
+      row_text = row.get_text(strip=True)
+      if 'ROCE' in row_text or 'Return on Capital Employed' in row_text or 'Return on capital employed' in row_text:
+          roce_row = row
+          break
 
-  if len(ROCE)<5:
+  ROCE = []
+  if roce_row:
+      for s in roce_row.find_all('td', class_=''):
+          txt = s.text.strip()
+          if not txt:
+              continue
+          try:
+              ROCE.append(int(txt.replace('%', '').replace(',', '')))
+          except ValueError:
+              continue
+
+  if ROCE:
+      ROCE.pop()
+
+  if len(ROCE) < 5:
       ROCE = ROCE[-1] if ROCE else 0
   else:
-      ROCE = statistics.median(ROCE[-5:]) 
-
+      ROCE = statistics.median(ROCE[-5:])
 
   stock_data['ROCE'] = ROCE
 
-  stock_data['FY23_PE'] = fy23_PE
+  stock_data['FY25_PE'] = fy25_PE
 
   #print('Stocks P/E', P_E, '\n', 'ROCE', ROCE)
 
@@ -261,17 +272,17 @@ intrinsicPE = calculate_intrinsic_value_PE(coc,roce,growth_high,high_growth_peri
 
 degOvereval = 0
 
-if  res[0]['Stock_PE'] <= res[0]['FY23_PE']:
+if  res[0]['Stock_PE'] <= res[0]['FY25_PE']:
   degOvereval = (res[0]['Stock_PE']/intrinsicPE) - 1
 else:
-  degOvereval = (res[0]['FY23_PE']/intrinsicPE) - 1
+  degOvereval = (res[0]['FY25_PE']/intrinsicPE) - 1
 
 
 container_info = st.container(border = True)
 with container_info:
   st.write(f"Stock Symbol: {token}")
   st.write(f"Current PE: {res[0]['Stock_PE']}")
-  st.write(f"FY23 PE: {res[0]['FY23_PE']}")
+  st.write(f"FY25 PE: {res[0]['FY25_PE']}")
   st.write(f"5-Yr Median pre-tax RoCE: {res[0]['ROCE']}")
 
 container_tab = st.container(border = True)
